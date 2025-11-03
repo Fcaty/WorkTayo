@@ -39,7 +39,7 @@
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="93" max="32767" attributes="0"/>
+              <EmptySpace pref="158" max="32767" attributes="0"/>
               <Component id="jSeparator1" min="-2" pref="18" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
@@ -137,7 +137,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Welcome, Admin!  |  Logout "/>
+        <Property name="text" type="java.lang.String" value="Welcome, Admin! "/>
       </Properties>
     </Component>
     <Component class="javax.swing.JSeparator" name="jSeparator1">

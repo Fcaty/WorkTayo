@@ -58,7 +58,7 @@ public class Home extends javax.swing.JFrame {
 
         jLabel4.setText("Insert Image Here!");
 
-        jLabel5.setText("Welcome, Admin!  |  Logout ");
+        jLabel5.setText("Welcome, Admin! ");
 
         jButton5.setText("System Settings");
 
@@ -77,7 +77,7 @@ public class Home extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel1)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 158, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
