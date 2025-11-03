@@ -60,7 +60,7 @@ public class Home extends javax.swing.JFrame {
 
         jLabel5.setText("Welcome, Admin! ");
 
-        jButton5.setText("Manager Participants");
+        jButton5.setText("Manage Participants");
 
         jLabel6.setText("Insert an Image here!");
 
