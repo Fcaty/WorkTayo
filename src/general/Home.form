@@ -71,6 +71,7 @@
                       <Component id="btnConferences" pref="193" max="32767" attributes="0"/>
                       <Component id="btnReports" alignment="0" max="32767" attributes="0"/>
                       <Component id="btnParticipants" alignment="0" max="32767" attributes="0"/>
+                      <Component id="btnSchedules" alignment="0" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="102" max="-2" attributes="0"/>
               </Group>
@@ -93,10 +94,12 @@
                           <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="btnConferences" min="-2" pref="58" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
-                          <Component id="btnReports" min="-2" pref="58" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="47" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="btnParticipants" min="-2" pref="58" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="btnSchedules" min="-2" pref="58" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="btnReports" min="-2" pref="58" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace pref="87" max="32767" attributes="0"/>
@@ -185,6 +188,17 @@
             </Property>
             <Property name="text" type="java.lang.String" value="&#xa9; WorkTayo LTD."/>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="btnSchedules">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Dialog" size="14" style="1"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="View Schedules"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSchedulesActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

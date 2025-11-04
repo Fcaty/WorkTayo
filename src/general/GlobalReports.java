@@ -186,7 +186,7 @@ public class GlobalReports extends javax.swing.JFrame {
         jLabel7.setText("Add a chart");
         jPanel4.add(jLabel7);
 
-        jScrollPane2.setBorder(javax.swing.BorderFactory.createTitledBorder("Conference Perforamance Summary"));
+        jScrollPane2.setBorder(javax.swing.BorderFactory.createTitledBorder("Conference Performance Summary"));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -266,6 +266,7 @@ public class GlobalReports extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
