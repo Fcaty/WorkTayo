@@ -241,12 +241,11 @@ public class EditParticipant extends javax.swing.JDialog {
     }//GEN-LAST:event_txtAddressActionPerformed
 
     private void btnAddPartiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddPartiActionPerformed
-        addParticipant();
-        updateTable();
+
     }//GEN-LAST:event_btnAddPartiActionPerformed
 
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
-        clearText();
+
     }//GEN-LAST:event_btnClearActionPerformed
 
     private void txtFNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFNameActionPerformed
