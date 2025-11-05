@@ -13,7 +13,7 @@ import java.sql.SQLException;
  * @author Fcaty
  */
 public class DBConn {
-    private static final String url = "jdbc:mysql://localhost:3306/accountingsystem";
+    private static final String url = "jdbc:mysql://localhost:3306/conference_db";
     private static final String user = "root";
     private static final String pass = "";
     

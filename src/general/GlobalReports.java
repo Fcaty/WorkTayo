@@ -2,12 +2,23 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
+
 package general;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.category.DefaultCategoryDataset;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import database.DBConn;
 
 /**
  *
  * @author AMD
  */
+
 public class GlobalReports extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(GlobalReports.class.getName());
@@ -16,9 +27,104 @@ public class GlobalReports extends javax.swing.JFrame {
      * Creates new form GlobalReports
      */
     public GlobalReports() {
-        initComponents();
+    initComponents(); // This line is for your NetBeans UI
+    loadCharts();     // Add this line to run your code
+}
+
+    private void loadCharts() {
+    
+    // --- CHART 1: REVENUE BY CONFERENCE ---
+    try {
+        // 1. Create the dataset
+        DefaultCategoryDataset revenueDataset = new DefaultCategoryDataset();
+
+        // 2. Get database connection (REPLACE THIS with your class)
+        Connection con = DBConn.attemptConnection(); 
+        Statement st = con.createStatement();
+
+        // 3. Run the SQL query
+        ResultSet rs = st.executeQuery(
+            "SELECT T2.title, SUM(T1.fees_paid) AS total_revenue " +
+            "FROM attends T1 " +
+            "JOIN conference T2 ON T1.confID = T2.confID " +
+            "GROUP BY T2.title"
+        );
+
+        // 4. Loop through results and add to dataset
+        while (rs.next()) {
+            String conferenceTitle = rs.getString("title");
+            double totalRevenue = rs.getDouble("total_revenue");
+            revenueDataset.addValue(totalRevenue, "Revenue", conferenceTitle);
+        }
+
+        // 5. Create the Bar Chart
+        JFreeChart revenueChart = ChartFactory.createBarChart(
+            "Revenue by Conference", // Chart Title
+            "Conference",            // X-Axis Label
+            "Revenue ($)",           // Y-Axis Label
+            revenueDataset           // The data
+        );
+
+        // 6. Create a ChartPanel to display it
+        ChartPanel chart1 = new ChartPanel(revenueChart);
+
+        // 7. Add the ChartPanel to your empty JPanel
+        chartPanel1.setLayout(new java.awt.BorderLayout());
+        chartPanel1.add(chart1, java.awt.BorderLayout.CENTER);
+        chartPanel1.validate(); // Refresh the panel
+
+        rs.close();
+        st.close();
+        con.close();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        // You can show a pop-up error here
     }
 
+    // --- CHART 2: ATTENDANCE BY CONFERENCE ---
+    try {
+        // 1. Create the dataset
+        DefaultCategoryDataset attendanceDataset = new DefaultCategoryDataset();
+
+        // 2. Get DB connection (REPLACE THIS with your class)
+        Connection con = DBConn.attemptConnection();
+        Statement st = con.createStatement();
+
+        // 3. Run the SQL query
+        ResultSet rs = st.executeQuery("SELECT title, no_of_attendees FROM conference");
+
+        // 4. Loop through results
+        while (rs.next()) {
+            String conferenceTitle = rs.getString("title");
+            int attendees = rs.getInt("no_of_attendees");
+            attendanceDataset.addValue(attendees, "Attendees", conferenceTitle);
+        }
+
+        // 5. Create the Bar Chart
+        JFreeChart attendanceChart = ChartFactory.createBarChart(
+            "Attendance by Conference",
+            "Conference",
+            "Number of Attendees",
+            attendanceDataset
+        );
+
+        // 6. Create the ChartPanel
+        ChartPanel chart2 = new ChartPanel(attendanceChart);
+
+        // 7. Add ChartPanel to your empty chartPanel2
+        chartPanel2.setLayout(new java.awt.BorderLayout());
+        chartPanel2.add(chart2, java.awt.BorderLayout.CENTER);
+        chartPanel2.validate();
+
+        rs.close();
+        st.close();
+        con.close();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -48,8 +154,8 @@ public class GlobalReports extends javax.swing.JFrame {
         jLabel15 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
+        chartPanel1 = new javax.swing.JPanel();
+        chartPanel2 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
@@ -178,13 +284,35 @@ public class GlobalReports extends javax.swing.JFrame {
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Charts"));
         jPanel4.setLayout(new java.awt.GridLayout(1, 2));
 
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("Add a chart");
-        jPanel4.add(jLabel2);
+        chartPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("chartPanel1"));
 
-        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel7.setText("Add a chart");
-        jPanel4.add(jLabel7);
+        javax.swing.GroupLayout chartPanel1Layout = new javax.swing.GroupLayout(chartPanel1);
+        chartPanel1.setLayout(chartPanel1Layout);
+        chartPanel1Layout.setHorizontalGroup(
+            chartPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 472, Short.MAX_VALUE)
+        );
+        chartPanel1Layout.setVerticalGroup(
+            chartPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 253, Short.MAX_VALUE)
+        );
+
+        jPanel4.add(chartPanel1);
+
+        chartPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("chartPanel2"));
+
+        javax.swing.GroupLayout chartPanel2Layout = new javax.swing.GroupLayout(chartPanel2);
+        chartPanel2.setLayout(chartPanel2Layout);
+        chartPanel2Layout.setHorizontalGroup(
+            chartPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 472, Short.MAX_VALUE)
+        );
+        chartPanel2Layout.setVerticalGroup(
+            chartPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 253, Short.MAX_VALUE)
+        );
+
+        jPanel4.add(chartPanel2);
 
         jScrollPane2.setBorder(javax.swing.BorderFactory.createTitledBorder("Conference Perforamance Summary"));
 
@@ -223,7 +351,7 @@ public class GlobalReports extends javax.swing.JFrame {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 934, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2)
                             .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
@@ -254,14 +382,14 @@ public class GlobalReports extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 938, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 962, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 638, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -302,6 +430,8 @@ public class GlobalReports extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel chartPanel1;
+    private javax.swing.JPanel chartPanel2;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
@@ -310,7 +440,6 @@ public class GlobalReports extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
@@ -319,7 +448,6 @@ public class GlobalReports extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel4;
