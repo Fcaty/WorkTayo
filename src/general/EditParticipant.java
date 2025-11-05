@@ -299,7 +299,6 @@ public class EditParticipant extends javax.swing.JDialog {
     }//GEN-LAST:event_txtFNameActionPerformed
 
     private void btnReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnActionPerformed
-        success = true;
         dispose();
     }//GEN-LAST:event_btnReturnActionPerformed
 

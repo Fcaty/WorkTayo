@@ -182,7 +182,7 @@ public class Home extends javax.swing.JFrame {
     }//GEN-LAST:event_btnParticipantsActionPerformed
 
     private void btnSchedulesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSchedulesActionPerformed
-        // TODO add your handling code here:
+
     }//GEN-LAST:event_btnSchedulesActionPerformed
 
     /**
