@@ -4,12 +4,9 @@
  */
 package general;
 import java.sql.*;
-import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import database.DBConn;
-import java.io.*;
-import java.util.Scanner;
 
 /**
  *
@@ -24,6 +21,7 @@ public class ManageParticipants extends javax.swing.JFrame {
         
         if(selectedParticipant == -1){
             JOptionPane.showMessageDialog(this, "No participant has been selected.");
+            return;
         }
         
         int empID = (int) pList.getValueAt(selectedParticipant, 0);
@@ -48,13 +46,25 @@ public class ManageParticipants extends javax.swing.JFrame {
         }
     }
     
-    //TODO
     private void editParticipant(){
         int selectedParticipant = pList.getSelectedRow();
         
         if(selectedParticipant == -1){
-            
+            JOptionPane.showMessageDialog(this, "No participant has been selected.");
+            return;
         }
+        
+        EditParticipant editP = new EditParticipant(this, true);
+        editP.receiveData(pList.getValueAt(selectedParticipant, 0).toString(), pList.getValueAt(selectedParticipant, 1).toString(), pList.getValueAt(selectedParticipant, 2).toString(),  pList.getValueAt(selectedParticipant, 3).toString(),  pList.getValueAt(selectedParticipant, 4).toString(), pList.getValueAt(selectedParticipant, 5).toString() , pList.getValueAt(selectedParticipant, 6).toString() , pList.getValueAt(selectedParticipant, 7).toString() ,  pList.getValueAt(selectedParticipant, 8).toString());
+        editP.setVisible(true);
+        
+        if (editP.success){
+            JOptionPane.showMessageDialog(this, "Successfully updated!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Update unsuccessful.");
+        }
+        
+        updateTable();
     }
     
     
@@ -180,6 +190,7 @@ public class ManageParticipants extends javax.swing.JFrame {
         txtOffice = new javax.swing.JTextField();
         selectGender = new javax.swing.JComboBox<>();
         btnDelete = new javax.swing.JButton();
+        btnEdit = new javax.swing.JButton();
 
         jLabel15.setText("jLabel15");
 
@@ -242,22 +253,22 @@ public class ManageParticipants extends javax.swing.JFrame {
 
         pList.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Employee ID", "First Name", "M.I.", "Last Name", "Email", "Age", "Office", "Gender"
+                "Employee ID", "First Name", "M.I.", "Last Name", "Email", "Age", "Office", "Address", "Gender"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -270,6 +281,9 @@ public class ManageParticipants extends javax.swing.JFrame {
             }
         });
         jScrollPane2.setViewportView(pList);
+        if (pList.getColumnModel().getColumnCount() > 0) {
+            pList.getColumnModel().getColumn(1).setResizable(false);
+        }
 
         jScrollPane1.setViewportView(jScrollPane2);
 
@@ -443,6 +457,13 @@ public class ManageParticipants extends javax.swing.JFrame {
             }
         });
 
+        btnEdit.setText("Edit Text");
+        btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -465,6 +486,8 @@ public class ManageParticipants extends javax.swing.JFrame {
                         .addGap(417, 417, 417))))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnEdit)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnDelete)
                 .addGap(17, 17, 17))
         );
@@ -478,7 +501,9 @@ public class ManageParticipants extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnDelete)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnDelete)
+                    .addComponent(btnEdit))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -525,6 +550,10 @@ public class ManageParticipants extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_pListPropertyChange
 
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        editParticipant();
+    }//GEN-LAST:event_btnEditActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -554,6 +583,7 @@ public class ManageParticipants extends javax.swing.JFrame {
     private javax.swing.JButton btnAddParti;
     private javax.swing.JButton btnClear;
     private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnReturn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;

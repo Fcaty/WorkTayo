@@ -49,6 +49,58 @@ public class ManageConference extends javax.swing.JFrame {
         }
     }
     
+    private void deleteConference(){
+        int selectedConf = cList.getSelectedRow();
+        int choice = 0;
+        
+        if(selectedConf == -1){
+            JOptionPane.showMessageDialog(this, "No conference has been selected.");
+            return;
+        }
+        
+        int confID = (int) cList.getValueAt(selectedConf, 0);
+        
+        try(
+                Connection con = DBConn.attemptConnection();
+                PreparedStatement pstmtDelete = con.prepareStatement("DELETE FROM conference_registration.conference WHERE confID = ?");
+           ){ 
+            
+            pstmtDelete.setInt(1, confID);
+            
+            
+            choice = JOptionPane.showConfirmDialog(this, "Delete selected conference?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            if(choice == 0){
+                pstmtDelete.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Conference deleted.");
+            } else if (choice == 1) {
+                JOptionPane.showMessageDialog(this, "Deletion cancelled.");
+            }
+            
+        } catch (SQLException e){
+            JOptionPane.showMessageDialog(this, "An error has occured: " + e.getMessage());
+        }
+        
+    }
+    
+    private void editConference(){
+        int selectedConf = cList.getSelectedRow();
+        
+        if(selectedConf == -1){
+            JOptionPane.showMessageDialog(this, "No conference has been selected.");
+            return;
+        }
+        
+        EditConf eConf = new EditConf(this, true);
+        eConf.receiveData(cList.getValueAt(selectedConf, 0).toString(), cList.getValueAt(selectedConf, 1).toString(), cList.getValueAt(selectedConf, 2).toString(), cList.getValueAt(selectedConf, 3).toString());
+        eConf.setVisible(true);
+        
+        if(eConf.success){
+            JOptionPane.showMessageDialog(this, "Successfully updated!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Update unsuccessful.");
+        }
+    }
+    
     private void updateTable(){
         DefaultTableModel confList = (DefaultTableModel) cList.getModel();
         confList.setRowCount(0);
@@ -101,8 +153,8 @@ public class ManageConference extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         cList = new javax.swing.JTable();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        btnDelete = new javax.swing.JButton();
+        btnEdit = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -207,11 +259,19 @@ public class ManageConference extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(cList);
 
-        jLabel4.setForeground(new java.awt.Color(0, 51, 204));
-        jLabel4.setText("Edit");
+        btnDelete.setText("Delete");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
-        jLabel5.setForeground(new java.awt.Color(204, 0, 0));
-        jLabel5.setText("Delete");
+        btnEdit.setText("Edit");
+        btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -223,14 +283,14 @@ public class ManageConference extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 962, Short.MAX_VALUE))
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel4)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel5)
-                .addGap(71, 71, 71))
+                .addComponent(btnEdit)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnDelete)
+                .addGap(27, 27, 27))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -239,11 +299,11 @@ public class ManageConference extends javax.swing.JFrame {
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel5))
-                .addContainerGap(11, Short.MAX_VALUE))
+                    .addComponent(btnDelete)
+                    .addComponent(btnEdit))
+                .addContainerGap())
         );
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
@@ -402,6 +462,16 @@ public class ManageConference extends javax.swing.JFrame {
         clearText();
     }//GEN-LAST:event_btnClearActionPerformed
 
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        deleteConference();
+        updateTable();
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        editConference();
+        updateTable();
+    }//GEN-LAST:event_btnEditActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -430,6 +500,8 @@ public class ManageConference extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddConfe;
     private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnReturn;
     private javax.swing.JTable cList;
     private javax.swing.JLabel jLabel1;
@@ -437,8 +509,6 @@ public class ManageConference extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;

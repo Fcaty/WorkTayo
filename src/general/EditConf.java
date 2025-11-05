@@ -3,13 +3,17 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
 package general;
+import java.sql.*;
+import javax.swing.*;
+import database.DBConn;
 
 /**
  *
  * @author Fcaty
  */
 public class EditConf extends javax.swing.JDialog {
-    
+    private int id = 0;
+    public boolean success = false;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(EditConf.class.getName());
 
     /**
@@ -18,6 +22,37 @@ public class EditConf extends javax.swing.JDialog {
     public EditConf(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+    }
+    
+    public void receiveData(String confID, String title, String venue, String attendees){
+        txtTitle.setText(title);
+        txtVenue.setText(venue);
+        txtAttendees.setText(attendees);
+        setID(Integer.parseInt(confID));
+    }
+    
+    public void setID(int id){
+        this.id = id;
+    }
+    
+    private boolean editConference(){
+        try(
+                Connection con = DBConn.attemptConnection();
+                PreparedStatement pstmtInput = con.prepareStatement("UPDATE conference_registration.conference SET title = ?, venue = ?, no_of_attendees = ? WHERE confID = ?"); 
+           ){
+            
+            pstmtInput.setString(1, txtTitle.getText());
+            pstmtInput.setString(2, txtVenue.getText());
+            pstmtInput.setInt(3, Integer.parseInt(txtAttendees.getText()));
+            pstmtInput.setInt(4, id);
+            pstmtInput.executeUpdate();
+            
+            return true;
+            
+        } catch (SQLException e){
+            JOptionPane.showMessageDialog(this, "An error has occured: "+ e.getMessage());
+            return false;
+        }
     }
 
     /**
@@ -34,11 +69,11 @@ public class EditConf extends javax.swing.JDialog {
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
-        txtTitle1 = new javax.swing.JTextField();
-        txtAttendees1 = new javax.swing.JTextField();
-        txtVenue1 = new javax.swing.JTextField();
-        btnAddConfe1 = new javax.swing.JButton();
-        btnClear = new javax.swing.JButton();
+        txtTitle = new javax.swing.JTextField();
+        txtAttendees = new javax.swing.JTextField();
+        txtVenue = new javax.swing.JTextField();
+        btnEditConfe = new javax.swing.JButton();
+        btnReturn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -61,19 +96,19 @@ public class EditConf extends javax.swing.JDialog {
         jLabel13.setForeground(new java.awt.Color(0, 0, 0));
         jLabel13.setText("Number of Attendees");
 
-        btnAddConfe1.setBackground(new java.awt.Color(0, 51, 204));
-        btnAddConfe1.setText("Edit Conference Info");
-        btnAddConfe1.addActionListener(new java.awt.event.ActionListener() {
+        btnEditConfe.setBackground(new java.awt.Color(0, 51, 204));
+        btnEditConfe.setText("Edit Conference Info");
+        btnEditConfe.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddConfe1ActionPerformed(evt);
+                btnEditConfeActionPerformed(evt);
             }
         });
 
-        btnClear.setBackground(new java.awt.Color(102, 102, 102));
-        btnClear.setText("Go Back");
-        btnClear.addActionListener(new java.awt.event.ActionListener() {
+        btnReturn.setBackground(new java.awt.Color(102, 102, 102));
+        btnReturn.setText("Go Back");
+        btnReturn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnClearActionPerformed(evt);
+                btnReturnActionPerformed(evt);
             }
         });
 
@@ -89,21 +124,21 @@ public class EditConf extends javax.swing.JDialog {
                 .addGap(14, 14, 14)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(btnAddConfe1)
+                        .addComponent(btnEditConfe)
                         .addGap(18, 18, 18)
-                        .addComponent(btnClear)
+                        .addComponent(btnReturn)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jLabel13)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(txtAttendees1)
+                            .addComponent(txtAttendees)
                             .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtTitle1, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE))
+                            .addComponent(txtTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtVenue1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtVenue, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel12))
                         .addGap(107, 107, 107))))
         );
@@ -117,20 +152,20 @@ public class EditConf extends javax.swing.JDialog {
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jLabel11)
                         .addGap(3, 3, 3)
-                        .addComponent(txtTitle1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel13)
                         .addGap(5, 5, 5)
-                        .addComponent(txtAttendees1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtAttendees, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jLabel12)
                         .addGap(3, 3, 3)
-                        .addComponent(txtVenue1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtVenue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(84, 84, 84)))
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnAddConfe1)
-                    .addComponent(btnClear))
+                    .addComponent(btnEditConfe)
+                    .addComponent(btnReturn))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
@@ -138,9 +173,11 @@ public class EditConf extends javax.swing.JDialog {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 799, Short.MAX_VALUE)
+            .addGap(0, 760, Short.MAX_VALUE)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createSequentialGroup()
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 760, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -153,13 +190,15 @@ public class EditConf extends javax.swing.JDialog {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnAddConfe1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddConfe1ActionPerformed
+    private void btnEditConfeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditConfeActionPerformed
+        success = editConference();
+        dispose();
+    }//GEN-LAST:event_btnEditConfeActionPerformed
 
-    }//GEN-LAST:event_btnAddConfe1ActionPerformed
-
-    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
-
-    }//GEN-LAST:event_btnClearActionPerformed
+    private void btnReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnActionPerformed
+        success = true;
+        dispose();
+    }//GEN-LAST:event_btnReturnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -199,15 +238,15 @@ public class EditConf extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAddConfe1;
-    private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnEditConfe;
+    private javax.swing.JButton btnReturn;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JTextField txtAttendees1;
-    private javax.swing.JTextField txtTitle1;
-    private javax.swing.JTextField txtVenue1;
+    private javax.swing.JTextField txtAttendees;
+    private javax.swing.JTextField txtTitle;
+    private javax.swing.JTextField txtVenue;
     // End of variables declaration//GEN-END:variables
 }

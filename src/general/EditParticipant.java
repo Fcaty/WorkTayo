@@ -3,13 +3,17 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
 package general;
+import java.sql.*;
+import javax.swing.*;
+import database.DBConn;
 
 /**
  *
  * @author Fcaty
  */
 public class EditParticipant extends javax.swing.JDialog {
-    
+    private int id = 0;
+    public boolean success = false;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(EditParticipant.class.getName());
 
     /**
@@ -18,6 +22,49 @@ public class EditParticipant extends javax.swing.JDialog {
     public EditParticipant(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+    }
+    
+    public void receiveData(String empID, String fname, String mi, String lname, String email, String age, String office, String address, String gender){
+        txtAddress.setText(address);
+        txtAge.setText(age);
+        txtEmail.setText(email);
+        txtFName.setText(fname);
+        txtLName.setText(lname);
+        txtMI.setText(mi);
+        txtOffice.setText(office);
+        selectGender.setSelectedItem(gender);
+        setID(Integer.parseInt(empID));
+    }
+    
+    public void setID(int id){
+        this.id = id;
+    }
+    
+    private boolean editParticipant(){
+        try(
+                Connection con = DBConn.attemptConnection();
+                PreparedStatement pstmtInput = con.prepareStatement("UPDATE conference_registration.participant SET fname = ?, mi = ?, lname = ?, email = ?, age = ?, address = ?, office = ?, gender = ? WHERE empID = ?");
+           ){
+            pstmtInput.setString(1, txtFName.getText());
+            pstmtInput.setString(2, txtMI.getText());
+            pstmtInput.setString(3, txtLName.getText());
+            pstmtInput.setString(4, txtEmail.getText());
+            pstmtInput.setInt(5, Integer.parseInt(txtAge.getText()));
+            pstmtInput.setString(6, txtAddress.getText());
+            pstmtInput.setString(7, txtOffice.getText());
+            pstmtInput.setString(8, (String) selectGender.getSelectedItem());
+            pstmtInput.setInt(9, id);
+            pstmtInput.executeUpdate();
+            
+            return true;
+            
+        } catch (SQLException e){
+            JOptionPane.showMessageDialog(this, "An error has occured: " + e.getMessage());
+            return false;
+        } catch (NumberFormatException e){
+            JOptionPane.showMessageDialog(this, "Invalid input! Age must be a number!");
+            return false;
+        }
     }
 
     /**
@@ -42,13 +89,13 @@ public class EditParticipant extends javax.swing.JDialog {
         txtMI = new javax.swing.JTextField();
         txtEmail = new javax.swing.JTextField();
         txtAddress = new javax.swing.JTextField();
-        btnAddParti = new javax.swing.JButton();
-        btnClear = new javax.swing.JButton();
+        btnEditParti = new javax.swing.JButton();
         txtFName = new javax.swing.JTextField();
         txtLName = new javax.swing.JTextField();
         txtAge = new javax.swing.JTextField();
         txtOffice = new javax.swing.JTextField();
         selectGender = new javax.swing.JComboBox<>();
+        btnReturn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -103,17 +150,10 @@ public class EditParticipant extends javax.swing.JDialog {
             }
         });
 
-        btnAddParti.setText("Edit Participant Info");
-        btnAddParti.addActionListener(new java.awt.event.ActionListener() {
+        btnEditParti.setText("Edit Participant Info");
+        btnEditParti.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddPartiActionPerformed(evt);
-            }
-        });
-
-        btnClear.setText("Clear");
-        btnClear.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnClearActionPerformed(evt);
+                btnEditPartiActionPerformed(evt);
             }
         });
 
@@ -124,6 +164,13 @@ public class EditParticipant extends javax.swing.JDialog {
         });
 
         selectGender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "Male", "Female", "Other" }));
+
+        btnReturn.setText("Go Back");
+        btnReturn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReturnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -153,10 +200,10 @@ public class EditParticipant extends javax.swing.JDialog {
                                     .addComponent(jLabel14)
                                     .addComponent(selectGender, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(btnAddParti, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnClear)
-                                .addGap(680, 680, 680))
+                                .addComponent(btnEditParti, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnReturn)
+                                .addGap(671, 671, 671))
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(txtFName, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -210,8 +257,8 @@ public class EditParticipant extends javax.swing.JDialog {
                     .addComponent(selectGender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(32, 32, 32)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnAddParti)
-                    .addComponent(btnClear))
+                    .addComponent(btnEditParti)
+                    .addComponent(btnReturn))
                 .addContainerGap(36, Short.MAX_VALUE))
         );
 
@@ -231,6 +278,7 @@ public class EditParticipant extends javax.swing.JDialog {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEmailActionPerformed
@@ -241,17 +289,19 @@ public class EditParticipant extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtAddressActionPerformed
 
-    private void btnAddPartiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddPartiActionPerformed
-
-    }//GEN-LAST:event_btnAddPartiActionPerformed
-
-    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
-
-    }//GEN-LAST:event_btnClearActionPerformed
+    private void btnEditPartiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditPartiActionPerformed
+        success = editParticipant();
+        dispose();
+    }//GEN-LAST:event_btnEditPartiActionPerformed
 
     private void txtFNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFNameActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtFNameActionPerformed
+
+    private void btnReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnActionPerformed
+        success = true;
+        dispose();
+    }//GEN-LAST:event_btnReturnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -291,8 +341,8 @@ public class EditParticipant extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAddParti;
-    private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnEditParti;
+    private javax.swing.JButton btnReturn;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;

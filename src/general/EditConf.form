@@ -23,9 +23,12 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <EmptySpace min="0" pref="799" max="32767" attributes="0"/>
+          <EmptySpace min="0" pref="760" max="32767" attributes="0"/>
           <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-              <Component id="jPanel3" alignment="0" max="32767" attributes="0"/>
+              <Group type="102" alignment="0" attributes="0">
+                  <Component id="jPanel3" min="-2" pref="760" max="-2" attributes="0"/>
+                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+              </Group>
           </Group>
       </Group>
     </DimensionLayout>
@@ -61,9 +64,9 @@
                   <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="btnAddConfe1" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnEditConfe" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Component id="btnClear" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnReturn" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
@@ -72,13 +75,13 @@
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                              <Component id="txtAttendees1" alignment="1" max="32767" attributes="0"/>
+                              <Component id="txtAttendees" alignment="1" max="32767" attributes="0"/>
                               <Component id="jLabel11" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="txtTitle1" alignment="1" pref="326" max="32767" attributes="0"/>
+                              <Component id="txtTitle" alignment="1" pref="326" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="txtVenue1" alignment="1" min="-2" pref="346" max="-2" attributes="0"/>
+                              <Component id="txtVenue" alignment="1" min="-2" pref="346" max="-2" attributes="0"/>
                               <Component id="jLabel12" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" pref="107" max="-2" attributes="0"/>
@@ -97,23 +100,23 @@
                       <Group type="102" alignment="1" attributes="0">
                           <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                          <Component id="txtTitle1" min="-2" max="-2" attributes="0"/>
+                          <Component id="txtTitle" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
-                          <Component id="txtAttendees1" min="-2" max="-2" attributes="0"/>
+                          <Component id="txtAttendees" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="1" attributes="0">
                           <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                          <Component id="txtVenue1" min="-2" max="-2" attributes="0"/>
+                          <Component id="txtVenue" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="84" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="btnAddConfe1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnClear" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnEditConfe" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnReturn" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="22" max="32767" attributes="0"/>
               </Group>
@@ -165,13 +168,13 @@
             <Property name="text" type="java.lang.String" value="Number of Attendees"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="txtTitle1">
+        <Component class="javax.swing.JTextField" name="txtTitle">
         </Component>
-        <Component class="javax.swing.JTextField" name="txtAttendees1">
+        <Component class="javax.swing.JTextField" name="txtAttendees">
         </Component>
-        <Component class="javax.swing.JTextField" name="txtVenue1">
+        <Component class="javax.swing.JTextField" name="txtVenue">
         </Component>
-        <Component class="javax.swing.JButton" name="btnAddConfe1">
+        <Component class="javax.swing.JButton" name="btnEditConfe">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="cc" green="33" red="0" type="rgb"/>
@@ -179,10 +182,10 @@
             <Property name="text" type="java.lang.String" value="Edit Conference Info"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAddConfe1ActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnEditConfeActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnClear">
+        <Component class="javax.swing.JButton" name="btnReturn">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="66" green="66" red="66" type="rgb"/>
@@ -190,7 +193,7 @@
             <Property name="text" type="java.lang.String" value="Go Back"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnClearActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReturnActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
