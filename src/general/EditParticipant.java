@@ -53,41 +53,42 @@ public class EditParticipant extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setForeground(new java.awt.Color(0, 0, 0));
 
         jLabel5.setBackground(new java.awt.Color(255, 255, 255));
         jLabel5.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel5.setForeground(new java.awt.Color(0, 0, 0));
         jLabel5.setText("Edit Participant (*Required) ");
 
         jLabel7.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel7.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel7.setForeground(new java.awt.Color(0, 0, 0));
         jLabel7.setText("First Name (*)");
 
         jLabel8.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel8.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel8.setForeground(new java.awt.Color(0, 0, 0));
         jLabel8.setText("Middle Initial");
 
         jLabel9.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel9.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel9.setForeground(new java.awt.Color(0, 0, 0));
         jLabel9.setText("Last Name (*)");
 
         jLabel10.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel10.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel10.setForeground(new java.awt.Color(0, 0, 0));
         jLabel10.setText("Email");
 
         jLabel11.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel11.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel11.setForeground(new java.awt.Color(0, 0, 0));
         jLabel11.setText("Age");
 
         jLabel12.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel12.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel12.setForeground(new java.awt.Color(0, 0, 0));
         jLabel12.setText("Address");
 
         jLabel13.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel13.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel13.setForeground(new java.awt.Color(0, 0, 0));
         jLabel13.setText("Office");
 
-        jLabel14.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel14.setForeground(new java.awt.Color(0, 0, 0));
         jLabel14.setText("Gender (*)");
 
         txtEmail.addActionListener(new java.awt.event.ActionListener() {

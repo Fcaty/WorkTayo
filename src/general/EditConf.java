@@ -46,19 +46,19 @@ public class EditConf extends javax.swing.JDialog {
         jPanel3.setForeground(new java.awt.Color(0, 51, 204));
 
         jLabel10.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel10.setForeground(new java.awt.Color(0, 0, 0));
         jLabel10.setText("Edit Conference");
 
         jLabel11.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel11.setForeground(new java.awt.Color(0, 0, 0));
         jLabel11.setText("Title");
 
         jLabel12.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel12.setForeground(new java.awt.Color(0, 0, 0));
         jLabel12.setText("Venue");
 
         jLabel13.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel13.setForeground(new java.awt.Color(0, 0, 0));
         jLabel13.setText("Number of Attendees");
 
         btnAddConfe1.setBackground(new java.awt.Color(0, 51, 204));
@@ -199,24 +199,15 @@ public class EditConf extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAddConfe;
     private javax.swing.JButton btnAddConfe1;
     private javax.swing.JButton btnClear;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JTextField txtAttendees;
     private javax.swing.JTextField txtAttendees1;
-    private javax.swing.JTextField txtTitle;
     private javax.swing.JTextField txtTitle1;
-    private javax.swing.JTextField txtVenue;
     private javax.swing.JTextField txtVenue1;
     // End of variables declaration//GEN-END:variables
 }

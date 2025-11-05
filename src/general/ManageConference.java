@@ -121,7 +121,8 @@ public class ManageConference extends javax.swing.JFrame {
 
         searchPanel.setBackground(new java.awt.Color(255, 255, 255));
 
-        jLabel2.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel2.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Search Conference");
 
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
@@ -136,6 +137,7 @@ public class ManageConference extends javax.swing.JFrame {
 
         btnReturn.setBackground(new java.awt.Color(0, 51, 204));
         btnReturn.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btnReturn.setForeground(new java.awt.Color(255, 255, 255));
         btnReturn.setText("← Back to Dashboard");
         btnReturn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -151,13 +153,15 @@ public class ManageConference extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(searchPanelLayout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jTextField1)
-                    .addGroup(searchPanelLayout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnReturn)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 599, Short.MAX_VALUE)
+                        .addComponent(btnReturn))
+                    .addGroup(searchPanelLayout.createSequentialGroup()
+                        .addGap(22, 22, 22)
+                        .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 898, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         searchPanelLayout.setVerticalGroup(
@@ -179,7 +183,7 @@ public class ManageConference extends javax.swing.JFrame {
 
         jLabel3.setBackground(new java.awt.Color(255, 255, 255));
         jLabel3.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setText("Current Conference");
 
         cList.setModel(new javax.swing.table.DefaultTableModel(
@@ -246,22 +250,23 @@ public class ManageConference extends javax.swing.JFrame {
         jPanel2.setForeground(new java.awt.Color(0, 51, 204));
 
         jLabel6.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel6.setForeground(new java.awt.Color(0, 0, 0));
         jLabel6.setText("Add/Edit Conference");
 
         jLabel7.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel7.setForeground(new java.awt.Color(0, 0, 0));
         jLabel7.setText("Title");
 
         jLabel8.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel8.setForeground(new java.awt.Color(0, 0, 0));
         jLabel8.setText("Venue");
 
         jLabel9.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(0, 51, 204));
+        jLabel9.setForeground(new java.awt.Color(0, 0, 0));
         jLabel9.setText("Number of Attendees");
 
         btnAddConfe.setBackground(new java.awt.Color(0, 51, 204));
+        btnAddConfe.setForeground(new java.awt.Color(255, 255, 255));
         btnAddConfe.setText("Add Conference");
         btnAddConfe.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -269,7 +274,8 @@ public class ManageConference extends javax.swing.JFrame {
             }
         });
 
-        btnClear.setBackground(new java.awt.Color(102, 102, 102));
+        btnClear.setBackground(new java.awt.Color(255, 51, 51));
+        btnClear.setForeground(new java.awt.Color(255, 255, 255));
         btnClear.setText("Clear");
         btnClear.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -289,9 +295,9 @@ public class ManageConference extends javax.swing.JFrame {
                 .addGap(14, 14, 14)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(btnAddConfe)
+                        .addComponent(btnAddConfe, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(btnClear)
+                        .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel9)
