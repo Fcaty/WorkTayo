@@ -3,7 +3,7 @@
 <Form version="1.9" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
-    <Property name="title" type="java.lang.String" value="Conference  Registration Monitoring System"/>
+    <Property name="title" type="java.lang.String" value="WorkTayo"/>
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
@@ -149,26 +149,26 @@
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel4">
               <Properties>
+                <Property name="text" type="java.lang.String" value="System-wide analytics across all events"/>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="14" style="0"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="System-wide analytics across all events"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel5">
               <Properties>
+                <Property name="text" type="java.lang.String" value="Global Reports"/>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="24" style="0"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Global Reports"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JButton" name="btnExportAllParticipants">
               <Properties>
+                <Property name="text" type="java.lang.String" value="[ &#x2193; ] Export Master Participant List (CSV)"/>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="18" style="0"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="[ &#x2193; ] Export Master Participant List (CSV)"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnExportAllParticipantsActionPerformed"/>
@@ -304,11 +304,11 @@
                       <Properties>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                           <Table columnCount="5" rowCount="4">
-                            <Column editable="true" title="Attendance ID" type="java.lang.String"/>
-                            <Column editable="true" title="Employee ID" type="java.lang.String"/>
-                            <Column editable="true" title="Full Name" type="java.lang.String"/>
-                            <Column editable="true" title="Fees Paid" type="java.lang.Double"/>
-                            <Column editable="true" title="Date" type="java.lang.String"/>
+                            <Column editable="false" title="Attendance ID" type="java.lang.String"/>
+                            <Column editable="false" title="Employee ID" type="java.lang.String"/>
+                            <Column editable="false" title="Full Name" type="java.lang.String"/>
+                            <Column editable="false" title="Fees Paid" type="java.lang.Double"/>
+                            <Column editable="false" title="Date" type="java.lang.String"/>
                           </Table>
                         </Property>
                         <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
@@ -453,10 +453,10 @@
             </Component>
             <Component class="javax.swing.JButton" name="btnExportCurAttendance">
               <Properties>
+                <Property name="text" type="java.lang.String" value="[ &#x2193; ] Export Current Attendance (CSV)"/>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="18" style="0"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="[ &#x2193; ] Export Current Attendance (CSV)"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnExportCurAttendanceActionPerformed"/>

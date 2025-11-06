@@ -40,7 +40,7 @@ public class ManageParticipants extends javax.swing.JFrame {
             pstmtDelete.setInt(1, empID);
             
             //Confirmation (0 == yes, 1 == no)
-            choice = JOptionPane.showConfirmDialog(this, "Delete selected conference?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            choice = JOptionPane.showConfirmDialog(this, "Delete selected participant?", "Confirmation", JOptionPane.YES_NO_OPTION);
             if(choice == 0){
                 pstmtDelete.executeUpdate();
                 JOptionPane.showMessageDialog(this, "Participant deleted.");
@@ -280,6 +280,7 @@ public class ManageParticipants extends javax.swing.JFrame {
         jLabel15.setText("jLabel15");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("WorkTayo");
         setBackground(new java.awt.Color(204, 204, 204));
 
         jLabel1.setText("WorkTayo");
@@ -372,9 +373,16 @@ public class ManageParticipants extends javax.swing.JFrame {
             Class[] types = new Class [] {
                 java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         pList.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
@@ -383,9 +391,6 @@ public class ManageParticipants extends javax.swing.JFrame {
             }
         });
         jScrollPane2.setViewportView(pList);
-        if (pList.getColumnModel().getColumnCount() > 0) {
-            pList.getColumnModel().getColumn(1).setResizable(false);
-        }
 
         jScrollPane1.setViewportView(jScrollPane2);
 
@@ -655,6 +660,7 @@ public class ManageParticipants extends javax.swing.JFrame {
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         deleteParticipant();
+        updateTable();
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void pListPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_pListPropertyChange

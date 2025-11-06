@@ -184,20 +184,21 @@ public class AssignConf extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("WorkTayo");
 
         jPanel3.setBackground(new java.awt.Color(204, 204, 204));
 
+        jLabel4.setText("Conferences");
         jLabel4.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel4.setText("Conferences");
 
+        jLabel5.setText("Date");
         jLabel5.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel5.setText("Date");
 
+        jLabel6.setText("Payment");
         jLabel6.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel6.setText("Payment");
 
         selectConf.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         selectConf.addActionListener(new java.awt.event.ActionListener() {
@@ -206,20 +207,20 @@ public class AssignConf extends javax.swing.JDialog {
             }
         });
 
+        btnAssign.setText("Assign");
         btnAssign.setBackground(new java.awt.Color(0, 0, 204));
         btnAssign.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         btnAssign.setForeground(new java.awt.Color(255, 255, 255));
-        btnAssign.setText("Assign");
         btnAssign.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAssignActionPerformed(evt);
             }
         });
 
+        btnReturn.setText("← Go Back");
         btnReturn.setBackground(new java.awt.Color(0, 0, 204));
         btnReturn.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         btnReturn.setForeground(new java.awt.Color(255, 255, 255));
-        btnReturn.setText("← Go Back");
         btnReturn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnReturnActionPerformed(evt);
@@ -278,9 +279,9 @@ public class AssignConf extends javax.swing.JDialog {
                 .addContainerGap(26, Short.MAX_VALUE))
         );
 
+        jLabel1.setText("Assign to Conference");
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 0, 204));
-        jLabel1.setText("Assign to Conference");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
