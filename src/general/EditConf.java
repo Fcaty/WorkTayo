@@ -12,9 +12,13 @@ import database.DBConn;
  * @author Fcaty
  */
 public class EditConf extends javax.swing.JDialog {
-    private int id = 0;
-    public boolean success = false;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(EditConf.class.getName());
+    public boolean success = false; //Used to differentiate successful edits from unsuccessful edits
+    
+    //Attribute
+    private int id = 0;
+    
+    
 
     /**
      * Creates new form EditConf
@@ -24,6 +28,7 @@ public class EditConf extends javax.swing.JDialog {
         initComponents();
     }
     
+    //Receives info from selected row from previous window's table
     public void receiveData(String confID, String title, String venue, String attendees){
         txtTitle.setText(title);
         txtVenue.setText(venue);
@@ -31,16 +36,27 @@ public class EditConf extends javax.swing.JDialog {
         setID(Integer.parseInt(confID));
     }
     
+    
+    //Public id setter
     public void setID(int id){
         this.id = id;
     }
     
+    //Edits conference information of the selected row from the table
     private boolean editConference(){
+        
+        //Error handling for missing / invalid input
+        if(txtTitle.getText().isEmpty() || txtVenue.getText().isEmpty() || txtAttendees.getText().isEmpty()){
+            JOptionPane.showMessageDialog(this, "Invalid input! Try again!");
+            return false;
+        }
+        
         try(
                 Connection con = DBConn.attemptConnection();
                 PreparedStatement pstmtInput = con.prepareStatement("UPDATE conference_registration.conference SET title = ?, venue = ?, no_of_attendees = ? WHERE confID = ?"); 
            ){
             
+            //Prepare information
             pstmtInput.setString(1, txtTitle.getText());
             pstmtInput.setString(2, txtVenue.getText());
             pstmtInput.setInt(3, Integer.parseInt(txtAttendees.getText()));
@@ -51,6 +67,9 @@ public class EditConf extends javax.swing.JDialog {
             
         } catch (SQLException e){
             JOptionPane.showMessageDialog(this, "An error has occured: "+ e.getMessage());
+            return false;
+        } catch (NumberFormatException e){
+            JOptionPane.showMessageDialog(this, "Invalid input! Attendee count must be a number!");
             return false;
         }
     }

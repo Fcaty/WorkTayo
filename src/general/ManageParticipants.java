@@ -16,10 +16,15 @@ public class ManageParticipants extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ManageParticipants.class.getName());
     
+    //Deletes a participant from the database
     private void deleteParticipant(){
+        
+        //Variable declaration
         int choice = 0;
         int selectedParticipant = pList.getSelectedRow();
         
+        
+        //Error handling for no selected participant
         if(selectedParticipant == -1){
             JOptionPane.showMessageDialog(this, "No participant has been selected.");
             return;
@@ -34,6 +39,7 @@ public class ManageParticipants extends javax.swing.JFrame {
             
             pstmtDelete.setInt(1, empID);
             
+            //Confirmation (0 == yes, 1 == no)
             choice = JOptionPane.showConfirmDialog(this, "Delete selected conference?", "Confirmation", JOptionPane.YES_NO_OPTION);
             if(choice == 0){
                 pstmtDelete.executeUpdate();
@@ -47,14 +53,19 @@ public class ManageParticipants extends javax.swing.JFrame {
         }
     }
     
+    //Edits a selected participant's information
     private void editParticipant(){
+        
+        //Variable declaration
         int selectedParticipant = pList.getSelectedRow();
         
+        //Error-handling for no selected participant
         if(selectedParticipant == -1){
             JOptionPane.showMessageDialog(this, "No participant has been selected.");
             return;
         }
         
+        //Opens EditParticipant to edit participant information
         EditParticipant editP = new EditParticipant(this, true);
         editP.receiveData(pList.getValueAt(selectedParticipant, 0).toString(), pList.getValueAt(selectedParticipant, 1).toString(), pList.getValueAt(selectedParticipant, 2).toString(),  pList.getValueAt(selectedParticipant, 3).toString(),  pList.getValueAt(selectedParticipant, 4).toString(), pList.getValueAt(selectedParticipant, 5).toString() , pList.getValueAt(selectedParticipant, 6).toString() , pList.getValueAt(selectedParticipant, 7).toString() ,  pList.getValueAt(selectedParticipant, 8).toString());
         editP.setVisible(true);
@@ -68,16 +79,22 @@ public class ManageParticipants extends javax.swing.JFrame {
         updateTable();
     }
     
+    //Assigns a participant to a conference
     private void assignParticipant(){
+        
+        //Variable declaration
         int selectedParticipant = pList.getSelectedRow();
         
+        //Error handling for no selected participant
         if(selectedParticipant == -1){
             JOptionPane.showMessageDialog(this, "No participant has been selected.");
             return;
         }
         
+        //Generates fullname
         String fullname = pList.getValueAt(selectedParticipant, 1).toString() + " " + pList.getValueAt(selectedParticipant, 2).toString() + " " + pList.getValueAt(selectedParticipant, 3).toString();
         
+        //Opens AssignConf to assign a participant to a conference
         AssignConf assign = new AssignConf(this, true, false);
         assign.receiveData(pList.getValueAt(selectedParticipant, 0).toString(), fullname);
         assign.setVisible(true);
@@ -89,7 +106,7 @@ public class ManageParticipants extends javax.swing.JFrame {
         }
     }
     
-    
+    //Adds a new participant to the database
     private void addParticipant(){
         
         if(selectGender.getSelectedIndex() == 0 || txtFName.getText().isEmpty() || txtLName.getText().isEmpty()){
@@ -122,16 +139,17 @@ public class ManageParticipants extends javax.swing.JFrame {
         } 
     }
     
+    //Updates table with most recent information from the database
     private void updateTable(){
+        //Table initialization
         DefaultTableModel partiList = (DefaultTableModel) pList.getModel();
         partiList.setRowCount(0);
         
         try(
             Connection con = DBConn.attemptConnection();
             Statement stmt = con.createStatement();
-           ){
-            
             ResultSet rs = stmt.executeQuery("SELECT empID, fname, mi, lname, email, age, address, office, gender FROM conference_registration.participant");
+           ){
             
             while(rs.next()){
                 Object[] row = {
@@ -152,6 +170,48 @@ public class ManageParticipants extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "An error occured: " + e.getMessage());
         }
     } 
+    
+    //Makes use of the searchbar to return results (reflected on the table) wherein the input is similar to a participant's first name or last name
+    private void searchTable(){
+        DefaultTableModel partiList = (DefaultTableModel) pList.getModel();
+        partiList.setRowCount(0);
+        
+        //Returns all results if the searchbar is empty
+        if(txtSearch.getText().isEmpty()){
+            updateTable();
+            return;
+        }
+        
+        try(
+                Connection con = DBConn.attemptConnection();
+                PreparedStatement pstmtScrape = con.prepareStatement("SELECT empID, fname, mi, lname, email, age, address, office, gender FROM conference_registration.participant WHERE fname LIKE ? OR lname LIKE ?");
+           ){
+            
+            //Change i when adding or removing attributes the search bar's content will be compared to (SQL LIKE STATEMENTS)
+            for(int i = 1; i <= 2; i++){
+                pstmtScrape.setString(i, "%" + txtSearch.getText() + "%");
+            }
+            
+            ResultSet rs = pstmtScrape.executeQuery();
+            while(rs.next()){
+                Object[] row = {
+                    rs.getInt("empID"),
+                    rs.getString("fname"),
+                    rs.getString("mi"),
+                    rs.getString("lname"),
+                    rs.getString("email"),
+                    rs.getInt("age"),
+                    rs.getString("address"),
+                    rs.getString("office"),
+                    rs.getString("gender")
+                };
+                partiList.addRow(row);
+            }
+            
+        } catch (SQLException e){
+            JOptionPane.showMessageDialog(this, "An error occured: "+ e.getMessage());
+        }
+    }
     
     private void clearText(){
         txtAddress.setText("");
@@ -188,7 +248,8 @@ public class ManageParticipants extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         btnReturn = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
+        txtSearch = new javax.swing.JTextField();
+        btnSearch = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         pList = new javax.swing.JTable();
@@ -245,6 +306,13 @@ public class ManageParticipants extends javax.swing.JFrame {
             }
         });
 
+        btnSearch.setText("Search");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -262,7 +330,9 @@ public class ManageParticipants extends javax.swing.JFrame {
                 .addContainerGap())
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(12, 12, 12)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 955, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnSearch)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 955, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -273,9 +343,11 @@ public class ManageParticipants extends javax.swing.JFrame {
                     .addComponent(jLabel4)
                     .addComponent(btnReturn))
                 .addGap(18, 18, 18)
-                .addComponent(jLabel3)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(btnSearch))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+                .addComponent(txtSearch, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -537,7 +609,7 @@ public class ManageParticipants extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnDelete)
@@ -597,6 +669,10 @@ public class ManageParticipants extends javax.swing.JFrame {
         assignParticipant();
     }//GEN-LAST:event_btnAssignActionPerformed
 
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        searchTable();
+    }//GEN-LAST:event_btnSearchActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -629,6 +705,7 @@ public class ManageParticipants extends javax.swing.JFrame {
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnReturn;
+    private javax.swing.JButton btnSearch;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -647,7 +724,6 @@ public class ManageParticipants extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTable pList;
     private javax.swing.JComboBox<String> selectGender;
     private javax.swing.JTextField txtAddress;
@@ -657,5 +733,6 @@ public class ManageParticipants extends javax.swing.JFrame {
     private javax.swing.JTextField txtLName;
     private javax.swing.JTextField txtMI;
     private javax.swing.JTextField txtOffice;
+    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }

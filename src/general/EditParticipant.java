@@ -12,9 +12,11 @@ import database.DBConn;
  * @author Fcaty
  */
 public class EditParticipant extends javax.swing.JDialog {
-    private int id = 0;
-    public boolean success = false;
+    public boolean success = false; //To differentiate successful edits from unsuccessful edits
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(EditParticipant.class.getName());
+    
+    //Attribute
+    private int id = 0;
 
     /**
      * Creates new form EditParticipant
@@ -24,6 +26,7 @@ public class EditParticipant extends javax.swing.JDialog {
         initComponents();
     }
     
+    //Receives info from the selected row of the previous window's table
     public void receiveData(String empID, String fname, String mi, String lname, String email, String age, String office, String address, String gender){
         txtAddress.setText(address);
         txtAge.setText(age);
@@ -36,18 +39,29 @@ public class EditParticipant extends javax.swing.JDialog {
         setID(Integer.parseInt(empID));
     }
     
+    //Public setter method
     public void setID(int id){
         this.id = id;
     }
     
+    //Edits selected participant's information
     private boolean editParticipant(){
-        String fullName = txtFName.getText() + " " + txtMI.getText() + " " + txtLName.getText();
+        
+        //Error handling for missing or invalid input
+        if(txtFName.getText().isEmpty() || txtLName.getText().isEmpty() || selectGender.getSelectedIndex() == 0){
+            JOptionPane.showMessageDialog(this, "Invalid input, try again!");
+            return false;
+        }
+        
+        String fullName = txtFName.getText() + " " + txtMI.getText() + " " + txtLName.getText(); //Generates fullname
         
         try(
                 Connection con = DBConn.attemptConnection();
                 PreparedStatement pstmtInput = con.prepareStatement("UPDATE conference_registration.participant SET fname = ?, mi = ?, lname = ?, email = ?, age = ?, address = ?, office = ?, gender = ? WHERE empID = ?");
                 PreparedStatement pstmtAuxInput = con.prepareStatement("UPDATE conference_registration.attends SET participant_name = ? WHERE empID = ?");
            ){
+            
+            //Prepares information
             pstmtInput.setString(1, txtFName.getText());
             pstmtInput.setString(2, txtMI.getText());
             pstmtInput.setString(3, txtLName.getText());
@@ -58,7 +72,7 @@ public class EditParticipant extends javax.swing.JDialog {
             pstmtInput.setString(8, (String) selectGender.getSelectedItem());
             pstmtInput.setInt(9, id);
             
-            
+            //Will update the fullname of the given employee's attend information, if the employee has attendance records
             pstmtAuxInput.setString(1, fullName);
             pstmtAuxInput.setInt(2, id);
             

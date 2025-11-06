@@ -15,13 +15,16 @@ import java.time.*;
  * @author Fcaty
  */
 public class AssignConf extends javax.swing.JDialog {
-    private boolean editing = false;
-    public boolean success = false;
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AssignConf.class.getName());
+    private boolean editing = false; //Identifies if the method call is for editing a record for attendance or creating a new record
+    public boolean success = false; //Used to differentiate successful edits from unsuccessful edits
+    
+    //Attributes
     private String fullName;
     private LocalDate date;
     private int empID = 0;
     private int attendanceID = 0;
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AssignConf.class.getName());
+    
 
     /**
      * Creates new form AssigntoSched
@@ -33,11 +36,13 @@ public class AssignConf extends javax.swing.JDialog {
         loadConferenceSelection();
     }
     
+    //Receives data from previous window, used for creating new records
     public void receiveData(String empID, String name){
         this.empID = Integer.parseInt(empID);
         fullName = name;
     }
     
+    //Receives data from previous window and sets it to each respective textbox, used for editing existing records
     public void receiveEditData(String attendanceID, String empID, String name, String fees, String date){
         this.empID = Integer.parseInt(empID);
         this.attendanceID = Integer.parseInt(attendanceID);
@@ -46,6 +51,7 @@ public class AssignConf extends javax.swing.JDialog {
         txtPayment.setText(fees);
     }
     
+    //Will load all conference options
     private void loadConferenceSelection(){
         try(
                 Connection con = DBConn.attemptConnection();
@@ -66,7 +72,17 @@ public class AssignConf extends javax.swing.JDialog {
         }
     }
     
+    //TODO: Merge assignToConf & reassignToConf, kinda feel that I could somehow merge these two methods, kinda don't have the time for that rn -rion
+    //Creates a new record, assigns a participant to a conference
     private boolean assignToConf(){
+        
+        //Error handling for missing input
+        if(txtPayment.getText().isEmpty() || selectConf.getSelectedIndex() == 0 || attendDate.getDateStringOrEmptyString().isEmpty()){
+            JOptionPane.showMessageDialog(this, "Invalid input! Try again!");
+            return false;
+        }
+        
+        //To store confID 
         int confID = 0;
         try(
                 Connection con = DBConn.attemptConnection();
@@ -75,12 +91,14 @@ public class AssignConf extends javax.swing.JDialog {
                         + "VALUES (?, ?, ?, ?, ?, ?)");
            ){
             
+            //Obtain confID from selected conference, to ensure that the selected item matches the confID of the database even when conferences are deleted
             pstmtScrapeID.setString(1, (String) selectConf.getSelectedItem());
             ResultSet rs = pstmtScrapeID.executeQuery();
             while(rs.next()) {
                 confID = rs.getInt("confID");
             }
             
+            //Prepare information
             pstmtInput.setInt(1, empID);
             pstmtInput.setInt(2, confID);
             pstmtInput.setString(3, (String) selectConf.getSelectedItem());
@@ -94,10 +112,22 @@ public class AssignConf extends javax.swing.JDialog {
         } catch (SQLException e){
             JOptionPane.showMessageDialog(this, "An error has occured: "+ e.getMessage());
             return false;
+        } catch (NumberFormatException e){
+            JOptionPane.showMessageDialog(this, "Invalid input! Payment must be a number or a decimal!");
+            return false;
         }
     }
     
+    //Edits an existing record
     private boolean reassignToConf(){
+        
+        //Error handling for missing input
+        if(txtPayment.getText().isEmpty() || selectConf.getSelectedIndex() == 0 || attendDate.getDateStringOrEmptyString().isEmpty()){
+            JOptionPane.showMessageDialog(this, "Invalid input! Try again!");
+            return false;
+        }
+        
+        //To store confID
         int confID = 0;
         try(
                 Connection con = DBConn.attemptConnection();
@@ -105,13 +135,14 @@ public class AssignConf extends javax.swing.JDialog {
                 PreparedStatement pstmtInput = con.prepareStatement("UPDATE conference_registration.attends SET empID = ?, confID = ?, conf_title = ?, participant_name = ?, fees_paid = ?, date = ? WHERE attendanceID = ?");
            ){
             
+            //Obtain confID from selected Conference
             pstmtScrapeID.setString(1, (String) selectConf.getSelectedItem());
             ResultSet rs = pstmtScrapeID.executeQuery();
-            
             while(rs.next()){
                 confID = rs.getInt("confID");
             }
             
+            //Prepare information for editing
             pstmtInput.setInt(1, empID);
             pstmtInput.setInt(2, confID);
             pstmtInput.setString(3, (String) selectConf.getSelectedItem());
@@ -124,6 +155,9 @@ public class AssignConf extends javax.swing.JDialog {
             return true;
         } catch (SQLException e){
             JOptionPane.showMessageDialog(this, "An error has occured: "+ e.getMessage());
+            return false;
+        } catch (NumberFormatException e){
+            JOptionPane.showMessageDialog(this, "Invalid input! Payment must be a number or a decimal!");
             return false;
         }
     }

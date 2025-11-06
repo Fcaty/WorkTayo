@@ -24,6 +24,8 @@ public class GlobalReports extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(GlobalReports.class.getName());
     
+    
+    //Loads all conference options
     private void loadConferenceSelection(){
         try(
                 Connection con = DBConn.attemptConnection();
@@ -45,14 +47,11 @@ public class GlobalReports extends javax.swing.JFrame {
         }
     }
     
+    //Refreshes participant list for the selected conference
     private void loadConferenceAttendees(){
+        //Table declaration
         DefaultTableModel aList = (DefaultTableModel) attendeeList.getModel();
         aList.setRowCount(0);
-        
-        if(selectConf.getSelectedIndex() == 0){
-            JOptionPane.showMessageDialog(this, "No conference selected.");
-            return;
-        } 
         
         try(
                 Connection con = DBConn.attemptConnection();
@@ -78,7 +77,9 @@ public class GlobalReports extends javax.swing.JFrame {
         }
     }
     
+    //Loads information for lifetime revenue, total unique participants, and total conferences
     private void loadInfo(){
+        //Variable declaration
         double totalCash = 0;
         int totalParticipants = 0;
         int totalConferences = 0;
@@ -95,19 +96,22 @@ public class GlobalReports extends javax.swing.JFrame {
                 ResultSet rsConferences = stmtScrapeConferences.executeQuery("SELECT * FROM conference_registration.conference");
            ){
             
+            //Calculates total cash
             while(rsAttends.next()){
                 totalCash += rsAttends.getDouble("fees_paid");
             }
             
+            //Counts amount of participants
             while(rsParticipants.next()){
                 totalParticipants++;
             }
             
-            
+            //Counts amount of conferences
             while(rsConferences.next()){
                 totalConferences++;
             }
             
+            //Updates labels
             txtCashTotal.setText(Double.toString(totalCash));
             txtParticipantTotal.setText(Integer.toString(totalParticipants));
             txtConfTotal.setText(Integer.toString(totalConferences));
@@ -117,9 +121,12 @@ public class GlobalReports extends javax.swing.JFrame {
         }
     }
     
+    //Edits a selected participant to reassign them to a conference
     private void reassignConferenceAttendee(){
+        //Variable declaration
         int selectedParticipant = attendeeList.getSelectedRow();
         
+        //Error handling for no selected participant
         if(selectedParticipant == -1){
             JOptionPane.showMessageDialog(this, "No participant selected");
             return;
@@ -137,10 +144,14 @@ public class GlobalReports extends javax.swing.JFrame {
         
     }
     
+    //Removes a participant from the conference attendance
     private void removeConferenceAttendee(){
+        
+        //Variable declaration
         int selectedParticipant =  attendeeList.getSelectedRow();
         int choice = 0;
         
+        //Error handling for no selected participant
         if(selectedParticipant == -1){
             JOptionPane.showMessageDialog(this, "No participant selected.");
             return;
@@ -155,6 +166,7 @@ public class GlobalReports extends javax.swing.JFrame {
             
             pstmtDelete.setInt(1, attendanceID);
             
+            //Confirmation for removal (0 == yes, 1 == no)
             choice = JOptionPane.showConfirmDialog(this, "Remove participant from conference?", "Confirmation", JOptionPane.YES_NO_OPTION);
             if(choice == 0){
                 pstmtDelete.executeUpdate();
@@ -167,13 +179,20 @@ public class GlobalReports extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "An error occured: "+ e.getMessage());
         }
     }
-    
-    
-    
+   
+    //Exports the participant list for the currently selected conference
     private void exportCurrentConferenceList(){
+        
+        //Error handling for no selected conference
+        if(selectConf.getSelectedIndex() == 0){
+            JOptionPane.showMessageDialog(this, "Select a conference first!");
+            return;
+        }
+        
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Save CSV File");
         
+        //Generates filename
         String currentTime = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         chooser.setSelectedFile(new File ((String) selectConf.getSelectedItem() + currentTime+ ".csv"));
         int choice = chooser.showSaveDialog(this);
@@ -182,7 +201,7 @@ public class GlobalReports extends javax.swing.JFrame {
             File savedFile = chooser.getSelectedFile();
             String filePath = savedFile.getAbsolutePath();
         
-        
+            //Prints information and formats it in a .csv file
             try(
                     Connection con = DBConn.attemptConnection();
                     PreparedStatement pstmtScraper = con.prepareStatement("SELECT empID, participant_name, fees_paid, date FROM conference_registration.attends WHERE conf_title = ?");
@@ -195,6 +214,7 @@ public class GlobalReports extends javax.swing.JFrame {
                 ResultSetMetaData rsMeta = rs.getMetaData();
                 int columnCount = rsMeta.getColumnCount();
                 
+                //Header
                 pw.println("ATTENDANCE LIST");
                 pw.println((String) selectConf.getSelectedItem());
                 
@@ -206,6 +226,7 @@ public class GlobalReports extends javax.swing.JFrame {
                 }
                 pw.println();
                 
+                //Data
                 while(rs.next()){
                     for(int i = 1; i <= columnCount; i++){
                         pw.print(rs.getString(i));
@@ -228,10 +249,12 @@ public class GlobalReports extends javax.swing.JFrame {
         } 
     }
     
+    //Exports all participants
     private void exportAllParticipants(){
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Save CSV File");
         
+        //Generates filename
         String currentTime = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         chooser.setSelectedFile(new File ((String) "MasterList" + currentTime+ ".csv"));
         int choice = chooser.showSaveDialog(this);
@@ -251,6 +274,7 @@ public class GlobalReports extends javax.swing.JFrame {
                 ResultSetMetaData rsMeta = rs.getMetaData();
                 int columnCount = rsMeta.getColumnCount();
                 
+                //Header
                 pw.println("PARTICIPANT LIST");
                 
                 for(int i = 1; i <= columnCount; i++){
@@ -261,6 +285,7 @@ public class GlobalReports extends javax.swing.JFrame {
                 }
                 pw.println();
                 
+                //Data
                 while(rs.next()){
                     for(int i = 1; i <= columnCount; i++){
                         pw.print(rs.getString(i));
@@ -290,6 +315,7 @@ public class GlobalReports extends javax.swing.JFrame {
      */
     public GlobalReports() {
     initComponents(); // This line is for your NetBeans UI     // Add this line to run your code
+    loadConferenceAttendees();
     loadConferenceSelection();
     loadInfo();
 }
@@ -630,6 +656,10 @@ public class GlobalReports extends javax.swing.JFrame {
     }//GEN-LAST:event_btnExportAllParticipantsActionPerformed
 
     private void btnSelectConfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelectConfActionPerformed
+        if(selectConf.getSelectedIndex() == 0){
+            JOptionPane.showMessageDialog(this, "No conference selected.");
+            return;
+        } 
         loadConferenceAttendees();
     }//GEN-LAST:event_btnSelectConfActionPerformed
 

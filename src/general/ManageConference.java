@@ -17,13 +17,17 @@ public class ManageConference extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ManageConference.class.getName());
     
+    //Clears text from all textboxes
     private void clearText(){
         txtTitle.setText("");
         txtAttendees.setText("");
         txtVenue.setText("");
     }
     
+    //Adds conference information to the database
     private void addConference(){
+        
+        //Error handling for missing or invalid input
         if(txtTitle.getText().isEmpty() || txtAttendees.getText().isEmpty() || txtVenue.getText().isEmpty()){
             JOptionPane.showMessageDialog(this, "Invalid input, try again!");
             return;
@@ -49,10 +53,14 @@ public class ManageConference extends javax.swing.JFrame {
         }
     }
     
+    //Deletes a conference from the database
     private void deleteConference(){
-        int selectedConf = cList.getSelectedRow();
-        int choice = 0;
         
+        //Variable declaration
+        int selectedConf = cList.getSelectedRow(); 
+        int choice = 0; 
+        
+        //Error handling for unselected conference
         if(selectedConf == -1){
             JOptionPane.showMessageDialog(this, "No conference has been selected.");
             return;
@@ -67,7 +75,7 @@ public class ManageConference extends javax.swing.JFrame {
             
             pstmtDelete.setInt(1, confID);
             
-            
+            //Confirmation (0 == yes, 1 == no)
             choice = JOptionPane.showConfirmDialog(this, "Delete selected conference?", "Confirmation", JOptionPane.YES_NO_OPTION);
             if(choice == 0){
                 pstmtDelete.executeUpdate();
@@ -82,14 +90,17 @@ public class ManageConference extends javax.swing.JFrame {
         
     }
     
+    //Edits a selected conference's information
     private void editConference(){
         int selectedConf = cList.getSelectedRow();
         
+        //Error handling for unselected conference
         if(selectedConf == -1){
             JOptionPane.showMessageDialog(this, "No conference has been selected.");
             return;
         }
         
+        //Opens EditConf window
         EditConf eConf = new EditConf(this, true);
         eConf.receiveData(cList.getValueAt(selectedConf, 0).toString(), cList.getValueAt(selectedConf, 1).toString(), cList.getValueAt(selectedConf, 2).toString(), cList.getValueAt(selectedConf, 3).toString());
         eConf.setVisible(true);
@@ -101,7 +112,9 @@ public class ManageConference extends javax.swing.JFrame {
         }
     }
     
+    //Updates table with most recent information from the database
     private void updateTable(){
+        //Table initialization
         DefaultTableModel confList = (DefaultTableModel) cList.getModel();
         confList.setRowCount(0);
         
@@ -126,6 +139,39 @@ public class ManageConference extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "An error ocurred: "+ e.getMessage());
         }
     }
+    
+    //Makes use of the searchbar to return results (reflected on the table) wherein the input is similar to a conference's title
+    private void searchTable(){
+        DefaultTableModel confList = (DefaultTableModel) cList.getModel();
+        confList.setRowCount(0);
+        
+        if(txtSearch.getText().isEmpty()){
+            updateTable();
+            return;
+        }
+        
+        try(
+                Connection con = DBConn.attemptConnection();
+                PreparedStatement pstmtScraper = con.prepareStatement("SELECT confID, title, venue, no_of_attendees FROM conference_registration.conference WHERE title LIKE ?");
+           ){
+            
+            pstmtScraper.setString(1, "%" + txtSearch.getText() + "%");
+            ResultSet rs = pstmtScraper.executeQuery();
+            
+            while(rs.next()){
+                Object[] row = {
+                  rs.getInt("confID"),
+                  rs.getString("title"),
+                  rs.getString("venue"),
+                  rs.getInt("no_of_attendees")
+                };
+                confList.addRow(row);
+            }
+            
+        } catch (SQLException e){
+            JOptionPane.showMessageDialog(this, "An error occured: "+ e.getMessage());
+        }
+    }
 
     /**
      * Creates new form ManageConference
@@ -146,9 +192,10 @@ public class ManageConference extends javax.swing.JFrame {
 
         searchPanel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtSearch = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         btnReturn = new javax.swing.JButton();
+        btnSearch = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -177,9 +224,9 @@ public class ManageConference extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Search Conference");
 
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        txtSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                txtSearchActionPerformed(evt);
             }
         });
 
@@ -197,6 +244,13 @@ public class ManageConference extends javax.swing.JFrame {
             }
         });
 
+        btnSearch.setText("Search");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout searchPanelLayout = new javax.swing.GroupLayout(searchPanel);
         searchPanel.setLayout(searchPanelLayout);
         searchPanelLayout.setHorizontalGroup(
@@ -210,9 +264,12 @@ public class ManageConference extends javax.swing.JFrame {
                         .addComponent(btnReturn))
                     .addGroup(searchPanelLayout.createSequentialGroup()
                         .addGap(22, 22, 22)
-                        .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 898, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(searchPanelLayout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnSearch))
+                            .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 898, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -224,9 +281,11 @@ public class ManageConference extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(btnReturn))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel2)
+                .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(btnSearch))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+                .addComponent(txtSearch, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -449,9 +508,9 @@ public class ManageConference extends javax.swing.JFrame {
         dispose();
     }//GEN-LAST:event_btnReturnActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_txtSearchActionPerformed
 
     private void btnAddConfeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddConfeActionPerformed
         addConference();
@@ -471,6 +530,10 @@ public class ManageConference extends javax.swing.JFrame {
         editConference();
         updateTable();
     }//GEN-LAST:event_btnEditActionPerformed
+
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        searchTable();
+    }//GEN-LAST:event_btnSearchActionPerformed
 
     /**
      * @param args the command line arguments
@@ -503,6 +566,7 @@ public class ManageConference extends javax.swing.JFrame {
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnReturn;
+    private javax.swing.JButton btnSearch;
     private javax.swing.JTable cList;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -516,9 +580,9 @@ public class ManageConference extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JPanel searchPanel;
     private javax.swing.JTextField txtAttendees;
+    private javax.swing.JTextField txtSearch;
     private javax.swing.JTextField txtTitle;
     private javax.swing.JTextField txtVenue;
     // End of variables declaration//GEN-END:variables
