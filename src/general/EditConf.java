@@ -62,12 +62,15 @@ public class EditConf extends javax.swing.JDialog {
             pstmtInput.setString(2, txtVenue.getText());
             pstmtInput.setInt(3, Integer.parseInt(txtAttendees.getText()));
             pstmtInput.setInt(4, id);
-            pstmtInput.executeUpdate();
+            
             
             //Will update the conference name of the given conference's attend information, if the conference has attendance records
             pstmtAuxInput.setString(1, txtTitle.getText());
             pstmtAuxInput.setInt(2, id);
             
+            
+            pstmtInput.executeUpdate();
+            pstmtAuxInput.executeUpdate();
             return true;
             
         } catch (SQLException e){
