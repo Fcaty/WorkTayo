@@ -394,7 +394,7 @@ public class ManageParticipants extends javax.swing.JFrame {
         jLabel5.setBackground(new java.awt.Color(255, 255, 255));
         jLabel5.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel5.setText("Add/Edit Participant (*Required) ");
+        jLabel5.setText("Add Participant (*Required) ");
 
         jLabel7.setBackground(new java.awt.Color(255, 255, 255));
         jLabel7.setForeground(new java.awt.Color(0, 0, 0));
@@ -414,7 +414,7 @@ public class ManageParticipants extends javax.swing.JFrame {
 
         jLabel11.setBackground(new java.awt.Color(255, 255, 255));
         jLabel11.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel11.setText("Age");
+        jLabel11.setText("Age (*)");
 
         jLabel12.setBackground(new java.awt.Color(255, 255, 255));
         jLabel12.setForeground(new java.awt.Color(0, 0, 0));
