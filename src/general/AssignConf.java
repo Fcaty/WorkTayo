@@ -225,6 +225,7 @@ public class AssignConf extends javax.swing.JDialog {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void selectConfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectConfActionPerformed
