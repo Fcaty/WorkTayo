@@ -246,7 +246,7 @@ public class ManageConference extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "Conference ID", "Title", "Venue", "Number of Attendees"
+                "Conference ID", "Title", "Venue", "Expected Number of Attendees"
             }
         ) {
             Class[] types = new Class [] {

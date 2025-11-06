@@ -41,9 +41,12 @@ public class EditParticipant extends javax.swing.JDialog {
     }
     
     private boolean editParticipant(){
+        String fullName = txtFName.getText() + " " + txtMI.getText() + " " + txtLName.getText();
+        
         try(
                 Connection con = DBConn.attemptConnection();
                 PreparedStatement pstmtInput = con.prepareStatement("UPDATE conference_registration.participant SET fname = ?, mi = ?, lname = ?, email = ?, age = ?, address = ?, office = ?, gender = ? WHERE empID = ?");
+                PreparedStatement pstmtAuxInput = con.prepareStatement("UPDATE conference_registration.attends SET participant_name = ? WHERE empID = ?");
            ){
             pstmtInput.setString(1, txtFName.getText());
             pstmtInput.setString(2, txtMI.getText());
@@ -54,8 +57,13 @@ public class EditParticipant extends javax.swing.JDialog {
             pstmtInput.setString(7, txtOffice.getText());
             pstmtInput.setString(8, (String) selectGender.getSelectedItem());
             pstmtInput.setInt(9, id);
-            pstmtInput.executeUpdate();
             
+            
+            pstmtAuxInput.setString(1, fullName);
+            pstmtAuxInput.setInt(2, id);
+            
+            pstmtInput.executeUpdate();
+            pstmtAuxInput.executeUpdate();
             return true;
             
         } catch (SQLException e){

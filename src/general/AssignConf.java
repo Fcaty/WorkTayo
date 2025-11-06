@@ -8,22 +8,27 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import database.DBConn;
+import java.time.*;
 
 /**
  *
  * @author Fcaty
  */
 public class AssignConf extends javax.swing.JDialog {
+    private boolean editing = false;
     public boolean success = false;
     private String fullName;
+    private LocalDate date;
     private int empID = 0;
+    private int attendanceID = 0;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AssignConf.class.getName());
 
     /**
      * Creates new form AssigntoSched
      */
-    public AssignConf(java.awt.Frame parent, boolean modal) {
+    public AssignConf(java.awt.Frame parent, boolean modal, boolean mode) {
         super(parent, modal);
+        editing = mode;
         initComponents();
         loadConferenceSelection();
     }
@@ -33,14 +38,22 @@ public class AssignConf extends javax.swing.JDialog {
         fullName = name;
     }
     
+    public void receiveEditData(String attendanceID, String empID, String name, String fees, String date){
+        this.empID = Integer.parseInt(empID);
+        this.attendanceID = Integer.parseInt(attendanceID);
+        fullName = name;
+        attendDate.setDate(LocalDate.parse(date));
+        txtPayment.setText(fees);
+    }
+    
     private void loadConferenceSelection(){
         try(
                 Connection con = DBConn.attemptConnection();
                 Statement stmtLoad = con.createStatement();
            ){
             
-            selectConf.addItem("Select");
             selectConf.removeAllItems();
+            selectConf.addItem("Select");
             ResultSet rs = stmtLoad.executeQuery("SELECT title FROM conference_registration.conference");
             
             while(rs.next()){
@@ -78,6 +91,37 @@ public class AssignConf extends javax.swing.JDialog {
             
             return true;
             
+        } catch (SQLException e){
+            JOptionPane.showMessageDialog(this, "An error has occured: "+ e.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean reassignToConf(){
+        int confID = 0;
+        try(
+                Connection con = DBConn.attemptConnection();
+                PreparedStatement pstmtScrapeID = con.prepareStatement("SELECT confID FROM conference_registration.conference WHERE title = ?"); 
+                PreparedStatement pstmtInput = con.prepareStatement("UPDATE conference_registration.attends SET empID = ?, confID = ?, conf_title = ?, participant_name = ?, fees_paid = ?, date = ? WHERE attendanceID = ?");
+           ){
+            
+            pstmtScrapeID.setString(1, (String) selectConf.getSelectedItem());
+            ResultSet rs = pstmtScrapeID.executeQuery();
+            
+            while(rs.next()){
+                confID = rs.getInt("confID");
+            }
+            
+            pstmtInput.setInt(1, empID);
+            pstmtInput.setInt(2, confID);
+            pstmtInput.setString(3, (String) selectConf.getSelectedItem());
+            pstmtInput.setString(4, fullName);
+            pstmtInput.setDouble(5, Double.parseDouble(txtPayment.getText()));
+            pstmtInput.setString(6, attendDate.getDateStringOrEmptyString());
+            pstmtInput.setInt(7, attendanceID);
+            pstmtInput.executeUpdate();
+            
+            return true;
         } catch (SQLException e){
             JOptionPane.showMessageDialog(this, "An error has occured: "+ e.getMessage());
             return false;
@@ -234,7 +278,12 @@ public class AssignConf extends javax.swing.JDialog {
     }//GEN-LAST:event_selectConfActionPerformed
 
     private void btnAssignActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAssignActionPerformed
-        success = assignToConf();
+        if(editing){
+            success = reassignToConf();
+        } else {
+            success = assignToConf();
+        }
+          
         dispose();
     }//GEN-LAST:event_btnAssignActionPerformed
 
@@ -267,7 +316,7 @@ public class AssignConf extends javax.swing.JDialog {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                AssignConf dialog = new AssignConf(new javax.swing.JFrame(), true);
+                AssignConf dialog = new AssignConf(new javax.swing.JFrame(), true, false);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

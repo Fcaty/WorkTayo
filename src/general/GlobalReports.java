@@ -6,7 +6,14 @@
 package general;
 import database.DBConn;
 import java.sql.*;
+import java.sql.ResultSetMetaData.*;
 import javax.swing.*;
+import javax.swing.table.*;
+import java.awt.*;
+import java.io.*;
+import java.util.*;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 /**
  *
@@ -23,8 +30,9 @@ public class GlobalReports extends javax.swing.JFrame {
                 Statement stmtLoad = con.createStatement();
            ){
             
-            selectConf.addItem("Select");
+            
             selectConf.removeAllItems();
+            selectConf.addItem("Select");
             ResultSet rs = stmtLoad.executeQuery("SELECT title FROM conference_registration.conference");
             
             while(rs.next()){
@@ -38,6 +46,9 @@ public class GlobalReports extends javax.swing.JFrame {
     }
     
     private void loadConferenceAttendees(){
+        DefaultTableModel aList = (DefaultTableModel) attendeeList.getModel();
+        aList.setRowCount(0);
+        
         if(selectConf.getSelectedIndex() == 0){
             JOptionPane.showMessageDialog(this, "No conference selected.");
             return;
@@ -45,13 +56,234 @@ public class GlobalReports extends javax.swing.JFrame {
         
         try(
                 Connection con = DBConn.attemptConnection();
-                PreparedStatement pstmtScrape = con.prepareStatement("SELECT empID, participant_name, fees_paid, data FROM conference_registration.attends WHERE conf_title = ?");
+                PreparedStatement pstmtScrape = con.prepareStatement("SELECT attendanceID, empID, participant_name, fees_paid, date FROM conference_registration.attends WHERE conf_title = ?");
            ){
+            
+            pstmtScrape.setString(1, (String) selectConf.getSelectedItem());
+            ResultSet rs = pstmtScrape.executeQuery();
+            
+            while(rs.next()){
+                Object[] row = {
+                  rs.getString("attendanceID"),
+                  rs.getString("empID"),
+                  rs.getString("participant_name"),
+                  Double.parseDouble(rs.getString("fees_paid")),
+                  rs.getString("date")
+                };
+                aList.addRow(row);
+            }
             
         } catch (SQLException e){
             JOptionPane.showMessageDialog(this, "An error has occured: "+ e.getMessage());
         }
     }
+    
+    private void loadInfo(){
+        double totalCash = 0;
+        int totalParticipants = 0;
+        int totalConferences = 0;
+        
+        
+        try(
+                Connection con = DBConn.attemptConnection();
+                Statement stmtScrapeAttends = con.createStatement();
+                Statement stmtScrapeParticipants = con.createStatement();
+                Statement stmtScrapeConferences = con.createStatement();
+                
+                ResultSet rsAttends = stmtScrapeAttends.executeQuery("SELECT fees_paid FROM conference_registration.attends");
+                ResultSet rsParticipants = stmtScrapeParticipants.executeQuery("SELECT * FROM conference_registration.participant");
+                ResultSet rsConferences = stmtScrapeConferences.executeQuery("SELECT * FROM conference_registration.conference");
+           ){
+            
+            while(rsAttends.next()){
+                totalCash += rsAttends.getDouble("fees_paid");
+            }
+            
+            while(rsParticipants.next()){
+                totalParticipants++;
+            }
+            
+            
+            while(rsConferences.next()){
+                totalConferences++;
+            }
+            
+            txtCashTotal.setText(Double.toString(totalCash));
+            txtParticipantTotal.setText(Integer.toString(totalParticipants));
+            txtConfTotal.setText(Integer.toString(totalConferences));
+            
+        } catch (SQLException e){
+            JOptionPane.showMessageDialog(this, "An error occured: "+ e.getMessage());
+        }
+    }
+    
+    private void reassignConferenceAttendee(){
+        int selectedParticipant = attendeeList.getSelectedRow();
+        
+        if(selectedParticipant == -1){
+            JOptionPane.showMessageDialog(this, "No participant selected");
+            return;
+        }
+        
+        AssignConf edit = new AssignConf(this, true, true);
+        edit.receiveEditData(attendeeList.getValueAt(selectedParticipant, 0).toString(), attendeeList.getValueAt(selectedParticipant, 1).toString(), attendeeList.getValueAt(selectedParticipant, 2).toString(), attendeeList.getValueAt(selectedParticipant, 3).toString(), attendeeList.getValueAt(selectedParticipant, 4).toString());
+        edit.setVisible(true);
+        
+        if (edit.success){
+            JOptionPane.showMessageDialog(this, "Successfully re-assigned!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Reassignment unsuccessful.");
+        }
+        
+    }
+    
+    private void removeConferenceAttendee(){
+        int selectedParticipant =  attendeeList.getSelectedRow();
+        int choice = 0;
+        
+        if(selectedParticipant == -1){
+            JOptionPane.showMessageDialog(this, "No participant selected.");
+            return;
+        }
+        
+        int attendanceID =  Integer.parseInt(attendeeList.getValueAt(selectedParticipant, 0).toString());
+        
+        try(
+                Connection con = DBConn.attemptConnection();
+                PreparedStatement pstmtDelete = con.prepareStatement("DELETE FROM conference_registration.attends WHERE attendanceID = ?");
+           ){
+            
+            pstmtDelete.setInt(1, attendanceID);
+            
+            choice = JOptionPane.showConfirmDialog(this, "Remove participant from conference?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            if(choice == 0){
+                pstmtDelete.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Removed from conference");
+            } else if (choice == 1) {
+                JOptionPane.showMessageDialog(this, "Operation cancelled.");
+            }
+
+        } catch (SQLException e){
+            JOptionPane.showMessageDialog(this, "An error occured: "+ e.getMessage());
+        }
+    }
+    
+    
+    
+    private void exportCurrentConferenceList(){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Save CSV File");
+        
+        String currentTime = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        chooser.setSelectedFile(new File ((String) selectConf.getSelectedItem() + currentTime+ ".csv"));
+        int choice = chooser.showSaveDialog(this);
+        
+        if (choice == JFileChooser.APPROVE_OPTION){
+            File savedFile = chooser.getSelectedFile();
+            String filePath = savedFile.getAbsolutePath();
+        
+        
+            try(
+                    Connection con = DBConn.attemptConnection();
+                    PreparedStatement pstmtScraper = con.prepareStatement("SELECT empID, participant_name, fees_paid, date FROM conference_registration.attends WHERE conf_title = ?");
+                    PrintWriter pw = new PrintWriter(new FileWriter(filePath));
+               ){
+                
+                pstmtScraper.setString(1, (String) selectConf.getSelectedItem());
+                ResultSet rs = pstmtScraper.executeQuery();
+                
+                ResultSetMetaData rsMeta = rs.getMetaData();
+                int columnCount = rsMeta.getColumnCount();
+                
+                pw.println("ATTENDANCE LIST");
+                pw.println((String) selectConf.getSelectedItem());
+                
+                for(int i = 1; i <= columnCount; i++){
+                    pw.print(rsMeta.getColumnName(i));
+                    if(i < columnCount) {
+                        pw.print(",");
+                    }
+                }
+                pw.println();
+                
+                while(rs.next()){
+                    for(int i = 1; i <= columnCount; i++){
+                        pw.print(rs.getString(i));
+                        if (i < columnCount){
+                            pw.print(",");
+                        }
+                    }
+                    pw.println();
+                }
+                
+                JOptionPane.showMessageDialog(this, "Conference data exported to: "+filePath);
+                
+            } catch (SQLException e){
+                JOptionPane.showMessageDialog(this, "An error occured: "+ e.getMessage());
+            } catch (FileNotFoundException e){
+                JOptionPane.showMessageDialog(this, "File not found.");
+            } catch (IOException e){
+                JOptionPane.showMessageDialog(this, "Invalid input!");
+            }
+        } 
+    }
+    
+    private void exportAllParticipants(){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Save CSV File");
+        
+        String currentTime = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        chooser.setSelectedFile(new File ((String) "MasterList" + currentTime+ ".csv"));
+        int choice = chooser.showSaveDialog(this);
+        
+        if (choice == JFileChooser.APPROVE_OPTION){
+            File savedFile = chooser.getSelectedFile();
+            String filePath = savedFile.getAbsolutePath();
+        
+        
+            try(
+                    Connection con = DBConn.attemptConnection();
+                    Statement stmtScraper = con.createStatement();
+                    ResultSet rs = stmtScraper.executeQuery("SELECT * FROM conference_registration.participant");
+                    PrintWriter pw = new PrintWriter(new FileWriter(filePath));
+               ){
+                
+                ResultSetMetaData rsMeta = rs.getMetaData();
+                int columnCount = rsMeta.getColumnCount();
+                
+                pw.println("PARTICIPANT LIST");
+                
+                for(int i = 1; i <= columnCount; i++){
+                    pw.print(rsMeta.getColumnName(i));
+                    if(i < columnCount) {
+                        pw.print(",");
+                    }
+                }
+                pw.println();
+                
+                while(rs.next()){
+                    for(int i = 1; i <= columnCount; i++){
+                        pw.print(rs.getString(i));
+                        if (i < columnCount){
+                            pw.print(",");
+                        }
+                    }
+                    pw.println();
+                }
+                
+                JOptionPane.showMessageDialog(this, "Masterlist exported to: "+filePath);
+                
+            } catch (SQLException e){
+                JOptionPane.showMessageDialog(this, "An error occured: "+ e.getMessage());
+            } catch (FileNotFoundException e){
+                JOptionPane.showMessageDialog(this, "File not found.");
+            } catch (IOException e){
+                JOptionPane.showMessageDialog(this, "Invalid input!");
+            }
+        } 
+    }
+    
+    
 
     /**
      * Creates new form GlobalReports
@@ -59,6 +291,7 @@ public class GlobalReports extends javax.swing.JFrame {
     public GlobalReports() {
     initComponents(); // This line is for your NetBeans UI     // Add this line to run your code
     loadConferenceSelection();
+    loadInfo();
 }
 
     /**
@@ -75,30 +308,30 @@ public class GlobalReports extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
+        btnExportAllParticipants = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         btnReturn = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         selectConf = new javax.swing.JComboBox<>();
-        jButton3 = new javax.swing.JButton();
-        attendeeList = new javax.swing.JScrollPane();
-        spList = new javax.swing.JTable();
+        btnSelectConf = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        attendeeList = new javax.swing.JTable();
         jPanel6 = new javax.swing.JPanel();
         jLabel18 = new javax.swing.JLabel();
         jLabel22 = new javax.swing.JLabel();
         jLabel23 = new javax.swing.JLabel();
-        jLabel21 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
-        jLabel19 = new javax.swing.JLabel();
+        txtCashTotal = new javax.swing.JLabel();
+        txtParticipantTotal = new javax.swing.JLabel();
+        txtConfTotal = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        btnReassign = new javax.swing.JButton();
+        btnRemove = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        btnExportCurAttendance = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Conference  Registration Monitoring System");
@@ -116,11 +349,11 @@ public class GlobalReports extends javax.swing.JFrame {
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         jLabel5.setText("Global Reports");
 
-        jButton2.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jButton2.setText("[ ↓ ] Export Master Participant List (CSV)");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        btnExportAllParticipants.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        btnExportAllParticipants.setText("[ ↓ ] Export Master Participant List (CSV)");
+        btnExportAllParticipants.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                btnExportAllParticipantsActionPerformed(evt);
             }
         });
 
@@ -139,7 +372,12 @@ public class GlobalReports extends javax.swing.JFrame {
 
         selectConf.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jButton3.setText("Select");
+        btnSelectConf.setText("Select");
+        btnSelectConf.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSelectConfActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -151,7 +389,7 @@ public class GlobalReports extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(selectConf, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3)
+                .addComponent(btnSelectConf)
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -161,30 +399,30 @@ public class GlobalReports extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(selectConf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton3))
+                    .addComponent(btnSelectConf))
                 .addGap(3, 3, 3))
         );
 
-        spList.setModel(new javax.swing.table.DefaultTableModel(
+        attendeeList.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Employee ID", "Full Name", "Fees Paid", "Date"
+                "Attendance ID", "Employee ID", "Full Name", "Fees Paid", "Date"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Double.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
         });
-        attendeeList.setViewportView(spList);
+        jScrollPane1.setViewportView(attendeeList);
 
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("KPI"));
         jPanel6.setLayout(new java.awt.GridLayout(3, 3, 0, 5));
@@ -204,55 +442,65 @@ public class GlobalReports extends javax.swing.JFrame {
         jLabel23.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jPanel6.add(jLabel23);
 
-        jLabel21.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel21.setText("// Cash Variable");
-        jLabel21.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jPanel6.add(jLabel21);
+        txtCashTotal.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        txtCashTotal.setText("// Cash Variable");
+        txtCashTotal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jPanel6.add(txtCashTotal);
 
-        jLabel16.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel16.setText("// Number of participants");
-        jLabel16.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jPanel6.add(jLabel16);
+        txtParticipantTotal.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        txtParticipantTotal.setText("// Number of participants");
+        txtParticipantTotal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jPanel6.add(txtParticipantTotal);
 
-        jLabel19.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel19.setText("// num of conferences");
-        jLabel19.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jPanel6.add(jLabel19);
+        txtConfTotal.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        txtConfTotal.setText("// num of conferences");
+        txtConfTotal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jPanel6.add(txtConfTotal);
 
         jLabel20.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel20.setText("// Icon if needed");
+        jLabel20.setText("💰 ");
         jLabel20.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jPanel6.add(jLabel20);
 
         jLabel15.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel15.setText("// icon if needed");
+        jLabel15.setText("👤");
         jLabel15.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jPanel6.add(jLabel15);
 
         jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel17.setText("// Icon if needed");
+        jLabel17.setText("👥");
         jLabel17.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jPanel6.add(jLabel17);
 
-        jButton4.setText("Edit");
+        btnReassign.setText("Reassign");
+        btnReassign.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReassignActionPerformed(evt);
+            }
+        });
 
-        jButton5.setText("Delete");
+        btnRemove.setText("Remove");
+        btnRemove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRemoveActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(attendeeList, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1378, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1378, Short.MAX_VALUE)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton4)
+                        .addComponent(btnReassign)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton5)))
+                        .addComponent(btnRemove)))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -260,11 +508,11 @@ public class GlobalReports extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(attendeeList, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton4)
-                    .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnReassign)
+                    .addComponent(btnRemove, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -273,11 +521,11 @@ public class GlobalReports extends javax.swing.JFrame {
         jLabel6.setText("© WorkTayo LTD.");
         jLabel6.setAlignmentX(0.1F);
 
-        jButton1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jButton1.setText("[ ↓ ] Export Current Attendance (CSV)");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnExportCurAttendance.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        btnExportCurAttendance.setText("[ ↓ ] Export Current Attendance (CSV)");
+        btnExportCurAttendance.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnExportCurAttendanceActionPerformed(evt);
             }
         });
 
@@ -289,10 +537,10 @@ public class GlobalReports extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton2))
+                        .addComponent(btnExportAllParticipants))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1))
+                        .addComponent(btnExportCurAttendance))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -336,9 +584,9 @@ public class GlobalReports extends javax.swing.JFrame {
                         .addGap(18, 18, 18)))
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addComponent(btnExportCurAttendance)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnExportAllParticipants, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel6)
                 .addContainerGap(29, Short.MAX_VALUE))
@@ -367,9 +615,9 @@ public class GlobalReports extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void btnExportCurAttendanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportCurAttendanceActionPerformed
+        exportCurrentConferenceList();
+    }//GEN-LAST:event_btnExportCurAttendanceActionPerformed
 
     private void btnReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnActionPerformed
         Home home = new Home();
@@ -377,9 +625,23 @@ public class GlobalReports extends javax.swing.JFrame {
         dispose();
     }//GEN-LAST:event_btnReturnActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void btnExportAllParticipantsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportAllParticipantsActionPerformed
+        exportAllParticipants();
+    }//GEN-LAST:event_btnExportAllParticipantsActionPerformed
+
+    private void btnSelectConfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelectConfActionPerformed
+        loadConferenceAttendees();
+    }//GEN-LAST:event_btnSelectConfActionPerformed
+
+    private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
+        removeConferenceAttendee();
+        loadConferenceAttendees();
+    }//GEN-LAST:event_btnRemoveActionPerformed
+
+    private void btnReassignActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReassignActionPerformed
+        reassignConferenceAttendee();
+        loadConferenceAttendees();
+    }//GEN-LAST:event_btnReassignActionPerformed
 
     /**
      * @param args the command line arguments
@@ -407,22 +669,19 @@ public class GlobalReports extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane attendeeList;
+    private javax.swing.JTable attendeeList;
+    private javax.swing.JButton btnExportAllParticipants;
+    private javax.swing.JButton btnExportCurAttendance;
+    private javax.swing.JButton btnReassign;
+    private javax.swing.JButton btnRemove;
     private javax.swing.JButton btnReturn;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
+    private javax.swing.JButton btnSelectConf;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
-    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
-    private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel3;
@@ -434,7 +693,10 @@ public class GlobalReports extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JComboBox<String> selectConf;
-    private javax.swing.JTable spList;
+    private javax.swing.JLabel txtCashTotal;
+    private javax.swing.JLabel txtConfTotal;
+    private javax.swing.JLabel txtParticipantTotal;
     // End of variables declaration//GEN-END:variables
 }

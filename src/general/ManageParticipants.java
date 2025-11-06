@@ -17,6 +17,7 @@ public class ManageParticipants extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ManageParticipants.class.getName());
     
     private void deleteParticipant(){
+        int choice = 0;
         int selectedParticipant = pList.getSelectedRow();
         
         if(selectedParticipant == -1){
@@ -32,13 +33,13 @@ public class ManageParticipants extends javax.swing.JFrame {
            ){
             
             pstmtDelete.setInt(1, empID);
-            int rowDeleted = pstmtDelete.executeUpdate();
             
-            if(rowDeleted > 0){
-                JOptionPane.showMessageDialog(this ,"Participant has been deleted!");
-                updateTable();
-            } else {
-                JOptionPane.showMessageDialog(this ,"Failed to delete participant!");
+            choice = JOptionPane.showConfirmDialog(this, "Delete selected conference?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            if(choice == 0){
+                pstmtDelete.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Participant deleted.");
+            } else if (choice == 1) {
+                JOptionPane.showMessageDialog(this, "Deletion cancelled.");
             }
             
         } catch (SQLException e){
@@ -77,7 +78,7 @@ public class ManageParticipants extends javax.swing.JFrame {
         
         String fullname = pList.getValueAt(selectedParticipant, 1).toString() + " " + pList.getValueAt(selectedParticipant, 2).toString() + " " + pList.getValueAt(selectedParticipant, 3).toString();
         
-        AssignConf assign = new AssignConf(this, true);
+        AssignConf assign = new AssignConf(this, true, false);
         assign.receiveData(pList.getValueAt(selectedParticipant, 0).toString(), fullname);
         assign.setVisible(true);
         
@@ -486,7 +487,7 @@ public class ManageParticipants extends javax.swing.JFrame {
             }
         });
 
-        btnEdit.setText("Edit Text");
+        btnEdit.setText("Edit");
         btnEdit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnEditActionPerformed(evt);
