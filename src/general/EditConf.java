@@ -54,6 +54,7 @@ public class EditConf extends javax.swing.JDialog {
         try(
                 Connection con = DBConn.attemptConnection();
                 PreparedStatement pstmtInput = con.prepareStatement("UPDATE conference_registration.conference SET title = ?, venue = ?, no_of_attendees = ? WHERE confID = ?"); 
+                PreparedStatement pstmtAuxInput = con.prepareStatement("UPDATE conference_registration.attends SET conf_title = ? WHERE confID = ?");
            ){
             
             //Prepare information
@@ -62,6 +63,10 @@ public class EditConf extends javax.swing.JDialog {
             pstmtInput.setInt(3, Integer.parseInt(txtAttendees.getText()));
             pstmtInput.setInt(4, id);
             pstmtInput.executeUpdate();
+            
+            //Will update the conference name of the given conference's attend information, if the conference has attendance records
+            pstmtAuxInput.setString(1, txtTitle.getText());
+            pstmtAuxInput.setInt(2, id);
             
             return true;
             
