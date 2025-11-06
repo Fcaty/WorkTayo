@@ -39,6 +39,7 @@ public class AssignConf extends javax.swing.JDialog {
                 Statement stmtLoad = con.createStatement();
            ){
             
+            selectConf.addItem("Select");
             selectConf.removeAllItems();
             ResultSet rs = stmtLoad.executeQuery("SELECT title FROM conference_registration.conference");
             
